@@ -1,7 +1,7 @@
 import requests
 import time
 import sys
-import json
+import traceback
 
 community_id = 000
 vk_token = "token"
@@ -11,53 +11,43 @@ def timer():
     time.sleep(0.4)
 
 
-def get_subs():
-    first_request = requests.get("https://api.vk.com/method/" + "groups.getMembers" + "?group_id=" + str(
-        community_id) + "?sort=id_asc" + "?offset=0" + "?count=1000" + "?&v=5.122" + "&access_token=" + str(
-        vk_token))
-    if 'error' in first_request.json():
-        print("Error in first_request")
-        pass
-    else:
-        print(first_request.json())
-        data = first_request.json()["response"]["items"]
-        print(data)
-        timer()
-
-        offset = 1000
-        while len(requests.get("https://api.vk.com/method/" + "groups.getMembers" + "?group_id=" + str(
-                community_id) + "?sort=id_asc" + "?&offset=" + str(
-            offset) + "&count=1000" + "&v=5.122" + "&access_token=" + str(vk_token)).json()["response"][
-                      "items"]) > 0:
-            request_api = requests.get("https://api.vk.com/method/" + "groups.getMembers" + "?group_id=" + str(
-                community_id) + "?sort=id_asc" + "?&offset=" + str(
-                offset) + "&count=1000" + "&v=5.122" + "&access_token=" + str(vk_token)).json()["response"]["items"]
-            print(request_api)
-            data += request_api
-            offset += 1000
-            timer()
-
-        return data
-
-
-subs_dict = get_subs()
-
-
 def check_subs(data):
-    for i in data:
-        sub = requests.get(
-            "https://api.vk.com/method/" + "users.get" + "?user_ids=" + str(i) + "&v=5.122" + "&access_token=" + str(vk_token))
-        timer()
-        try:
-            if sub.json()["response"][0]["first_name"] == "DELETED" or "deactivated" in sub.json()["response"][0]:
-                remove_request = requests.get("https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(community_id) + "&user_id=" + str(i) + "&v=5.122" + "&access_token=" + str(vk_token))
+    try:
+        max_ids = ''
+        x = 0
+        for i in range(0, len(data)-1):
+            if len(data) <= 0:
+                break
+            else:
+                max_ids += str(data[x]) + ','
+                x += 1
+        print(max_ids)
+
+        sub = requests.post("https://api.vk.com/method/users.get", data={'user_ids':str(max_ids), 'v':'5.22', 'access_token':vk_token}).json()["response"]
+        print(sub)
+
+        i = 0
+        while True:
+            if sub[i]["first_name"] == "DELETED" or "deactivated" in sub[i]:
+                remove_request = requests.get(
+                            "https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(
+                                community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.122" + "&access_token=" + str(vk_token))
                 print(remove_request.json())
                 timer()
             else:
-                print("Page #" + str(i), "is alive")
-                timer()
-        except:
-            pass
+                print("Page #" + str(sub[i]["id"]), "is alive")
+            i += 1
+    except:
+        traceback.print_exc()
 
 
-check_subs(subs_dict)
+offset = 0
+
+while True:
+    request = requests.get("https://api.vk.com/method/" + "groups.getMembers" + "?group_id=" + str(
+            community_id) + "?sort=id_asc" + "?&offset=" + str(offset) + "&count=1000" + "&v=5.122" + "&access_token=" + str(vk_token))
+    if len(request.json()["response"]["items"]) <= 0:
+        break
+    check_subs(request.json()["response"]["items"])
+    timer()
+    offset += 1000
