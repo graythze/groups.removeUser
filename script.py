@@ -28,14 +28,27 @@ def check_subs(data):
 
         i = 0
         while True:
-            if sub[i]["first_name"] == "DELETED" or "deactivated" in sub[i]:
-                remove_request = requests.get(
-                            "https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(
-                                community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.122" + "&access_token=" + str(vk_token))
-                print(remove_request.json())
-                timer()
-            else:
-                print("Page #" + str(sub[i]["id"]), "is alive")
+            if "first_name" in sub[i]:
+                if sub[i]["first_name"] == "DELETED":
+                    remove_request = requests.get(
+                        "https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(
+                            community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.122" + "&access_token=" + str(
+                            vk_token))
+                    print('DELETED: ' + str(remove_request.json()))
+                    timer()
+                    i += 1
+                    continue
+            if "deactivated" in sub[i]:
+                if sub[i]["deactivated"] == "banned":
+                    remove_request = requests.get(
+                        "https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(
+                            community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.122" + "&access_token=" + str(
+                            vk_token))
+                    print('BANNED: ' + str(remove_request.json()))
+                    timer()
+                    i += 1
+                    continue
+            print("Page #" + str(sub[i]["id"]), "is alive")
             i += 1
     except:
         traceback.print_exc()
