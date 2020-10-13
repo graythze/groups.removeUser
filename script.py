@@ -31,7 +31,7 @@ def check_subs(data):
         print(sub)
 
         i = 0
-        while i != len(data)-1:
+        while i <= len(data)-1:
             print(i)
             if "first_name" in sub[i]:
                 if sub[i]["first_name"] == "DELETED":
