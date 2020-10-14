@@ -12,7 +12,8 @@ You need to set variables in settings.py:
 * `vk_token` is VK API [Implicit Flow][0] access_token.
 
 
-### 🔌 Run bot
+### 🔌 Run script
+* Set required variables
 * Type `python script.py` to launch.
 
 
