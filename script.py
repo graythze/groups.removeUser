@@ -5,12 +5,13 @@ import traceback
 
 community_id = 000
 vk_token = "token"
+whitelist = [0]
 removed = 0
 checked = 0
 
 
 def timer():
-    time.sleep(0.4)
+    time.sleep(0.36)  # set this value between 3.6 and 4
 
 
 def counter():
@@ -28,35 +29,45 @@ def check_subs(data):
                             data={'user_ids': str(max_ids),
                                   'v': '5.124',
                                   'access_token': vk_token}).json()["response"]
-        print(sub)
+        print(len(sub))
 
         i = 0
-        while i <= len(data)-1:
+        while i <= len(data) - 1:
             print(i)
             if "first_name" in sub[i]:
                 if sub[i]["first_name"] == "DELETED":
-                    remove_request = requests.get(
-                        "https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(
-                            community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.124" + "&access_token=" + str(
-                            vk_token))
-                    print('DELETED: ' + str(remove_request.json()))
-                    i += 1
-                    removed += 1
-                    checked += 1
-                    timer()
-                    continue
+                    if sub[i]["id"] in whitelist:
+                        print("ID " + str(sub[i]["id"]) + " is whitelisted")
+                        checked += 1
+                        timer()
+                    else:
+                        remove_request = requests.get(
+                            "https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(
+                                community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.124" + "&access_token=" + str(
+                                vk_token))
+                        print('DELETED: ' + str(remove_request.json()))
+                        i += 1
+                        removed += 1
+                        checked += 1
+                        timer()
+                        continue
             if "deactivated" in sub[i]:
                 if sub[i]["deactivated"] == "banned":
-                    remove_request = requests.get(
-                        "https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(
-                            community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.124" + "&access_token=" + str(
-                            vk_token))
-                    print('BANNED: ' + str(remove_request.json()))
-                    i += 1
-                    removed += 1
-                    checked += 1
-                    timer()
-                    continue
+                    if sub[i]["id"] in whitelist:
+                        print("ID " + str(sub[i]["id"]) + " is whitelisted")
+                        checked += 1
+                        timer()
+                    else:
+                        remove_request = requests.get(
+                            "https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(
+                                community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.124" + "&access_token=" + str(
+                                vk_token))
+                        print('BANNED: ' + str(remove_request.json()))
+                        i += 1
+                        removed += 1
+                        checked += 1
+                        timer()
+                        continue
             print("Page #" + str(sub[i]["id"]), "is alive")
             i += 1
             checked += 1
@@ -72,7 +83,7 @@ while True:
                                   'sort': 'id_asc',
                                   'offset': str(offset),
                                   'count': '900',
-                                  'v':'5.124',
+                                  'v': '5.124',
                                   'access_token': str(vk_token)})
     if len(request.json()["response"]["items"]) <= 0:
         break
