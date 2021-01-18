@@ -1,13 +1,13 @@
 import requests
 import time
-import sys
 import traceback
 
 community_id = 000
 vk_token = "token"
-whitelist = [0]
 removed = 0
 checked = 0
+whitelist = [0]
+removed_pages = {}
 
 
 def timer():
@@ -15,7 +15,14 @@ def timer():
 
 
 def counter():
-    print('Removed: ' + str(removed) + ' Checked: ' + str(checked))
+    print(str(removed) + ' out of ' + str(checked) + ' were removed')
+
+
+def show_removed_pages():
+    print('These pages were removed from community: ')
+
+    for id, reason in removed_pages.items():
+        print(str(id) + str(reason))
 
 
 def check_subs(data):
@@ -34,23 +41,23 @@ def check_subs(data):
         i = 0
         while i <= len(data) - 1:
             print(i)
-            if "first_name" in sub[i]:
-                if sub[i]["first_name"] == "DELETED":
-                    if sub[i]["id"] in whitelist:
-                        print("ID " + str(sub[i]["id"]) + " is whitelisted")
-                        checked += 1
-                        timer()
-                    else:
-                        remove_request = requests.get(
-                            "https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(
-                                community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.124" + "&access_token=" + str(
-                                vk_token))
-                        print('DELETED: ' + str(remove_request.json()))
-                        i += 1
-                        removed += 1
-                        checked += 1
-                        timer()
-                        continue
+            if sub[i]["first_name"] == "DELETED":
+                if sub[i]["id"] in whitelist:
+                    print("ID " + str(sub[i]["id"]) + " is whitelisted")
+                    checked += 1
+                    timer()
+                else:
+                    remove_request = requests.get(
+                        "https://api.vk.com/method/" + "groups.removeUser" + "?group_id=" + str(
+                            community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.124" + "&access_token=" + str(
+                            vk_token))
+                    print('DELETED: ' + str(remove_request.json()))
+                    removed_pages[str(sub[i]["id"])] = " is completely deleted"
+                    i += 1
+                    removed += 1
+                    checked += 1
+                    timer()
+                    continue
             if "deactivated" in sub[i]:
                 if sub[i]["deactivated"] == "banned":
                     if sub[i]["id"] in whitelist:
@@ -63,6 +70,7 @@ def check_subs(data):
                                 community_id) + "&user_id=" + str(sub[i]["id"]) + "&v=5.124" + "&access_token=" + str(
                                 vk_token))
                         print('BANNED: ' + str(remove_request.json()))
+                        removed_pages[str(sub[i]["id"])] = " is banned"
                         i += 1
                         removed += 1
                         checked += 1
@@ -91,4 +99,5 @@ while True:
     timer()
     offset += 900
 
+show_removed_pages()
 counter()
