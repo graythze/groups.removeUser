@@ -2,8 +2,8 @@
 A python script which deletes blocked or deleted members from community
 
 ### ✅ Checklist to do before deleting
-*   Your community has **not more than 1M members**. Deleting members from bigger communities may cause to errors
-*   Members who have **"DELETED" in name** and **"banned" in deactivated line will be removed from community**
+*   Your community has **not more than 1M subscribers**. Deleting for big communities may cause errors because of VK API restriction (run this script for two or more times after 24 hours for full deletion)
+*   Members who have **"DELETED" in name** or **"banned" in 'deactivated' line will be removed from community**
 *   Your role in community is **moderator and above**.
 
 ### 🛠 Setup
