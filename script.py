@@ -41,23 +41,18 @@ def check_subs(data):
     while i <= len(data) - 1:
         print(i)
         if sub[i]["first_name"] == "DELETED":
-            if sub[i]["id"] in whitelist:
-                print("ID " + sub[i]["id"] + " is whitelisted")
-                checked += 1
-                timer()
-            else:
-                remove_request = requests.get("https://api.vk.com/method/groups.removeUser" +
-                                              "?group_id=" + str(community_id) +
-                                              "&user_id=" + str(sub[i]["id"]) +
-                                              "&v=" + v +
-                                              "&access_token=" + str(vk_token))
-                print('DELETED PAGE: ' + str(remove_request.json()))
-                removed_pages[sub[i]["id"]] = "is completely deleted"
-                i += 1
-                removed += 1
-                checked += 1
-                timer()
-                continue
+            remove_request = requests.get("https://api.vk.com/method/groups.removeUser" +
+                                          "?group_id=" + str(community_id) +
+                                          "&user_id=" + str(sub[i]["id"]) +
+                                          "&v=" + v +
+                                          "&access_token=" + str(vk_token))
+            print('DELETED PAGE: ' + str(remove_request.json()))
+            removed_pages[sub[i]["id"]] = "is completely deleted"
+            i += 1
+            removed += 1
+            checked += 1
+            timer()
+            continue
         if "deactivated" in sub[i]:
             if sub[i]["deactivated"] == "banned":
                 if sub[i]["id"] in whitelist:
