@@ -87,11 +87,15 @@ while True:
                                   'count': '900',
                                   'v': v,
                                   'access_token': str(vk_token)})
-    if len(request.json()["response"]["items"]) <= 0:
+    if "response" in request.json():
+        if len(request.json()["response"]["items"]) > 0:
+            check_subs(request.json()["response"]["items"])
+            timer()
+            offset += 900
+        else:
+            break
+    else:
         break
-    check_subs(request.json()["response"]["items"])
-    timer()
-    offset += 900
 
 show_removed_pages()
 counter()
