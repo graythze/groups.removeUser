@@ -30,7 +30,7 @@ def check_subs(data):
     for i in range(0, len(data)):
         max_ids += str(data[i]) + ','
     print(max_ids)
-    sub = requests.post("https://api.vk.com/method/users.get",
+    sub = requests.post("https://api.vk.ru/method/users.get",
                         data={'user_ids': max_ids,
                               'v': v,
                               'access_token': vk_token}).json()["response"]
@@ -38,7 +38,7 @@ def check_subs(data):
 
     for k in sub:
         if k["first_name"] == "DELETED":
-            remove_request = requests.post("https://api.vk.com/method/groups.removeUser", data={
+            remove_request = requests.post("https://api.vk.ru/method/groups.removeUser", data={
                 'group_id': community_id,
                 'user_id': str(k["id"]),
                 'v': v,
@@ -55,7 +55,7 @@ def check_subs(data):
                     checked += 1
                     timer()
                 else:
-                    remove_request = requests.post("https://api.vk.com/method/groups.removeUser", data={
+                    remove_request = requests.post("https://api.vk.ru/method/groups.removeUser", data={
                         'group_id': str(community_id),
                         'user_id': str(k["id"]),
                         'v': v,
@@ -73,7 +73,7 @@ def check_subs(data):
 offset = 0
 
 while True:
-    request = requests.post("https://api.vk.com/method/groups.getMembers",
+    request = requests.post("https://api.vk.ru/method/groups.getMembers",
                             data={'group_id': str(community_id),
                                   'offset': str(offset),
                                   'count': '1000',
@@ -88,3 +88,4 @@ while True:
             break
 
 show_removed_pages()
+
